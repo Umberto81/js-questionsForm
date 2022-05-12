@@ -1,5 +1,8 @@
 const question = document.getElementById("question");
 const choices = [...document.getElementsByClassName("choice-text")];
+const progressText = document.getElementById("progressText");
+const scoreText = document.getElementById("score");
+const progressBarFull = document.getElementById("progressBarFull");
 let currentQuestion = {};
 let acceptingAnswer = false;
 let score = 0;
@@ -50,6 +53,10 @@ getNewQuestion = () => {
     return window.location.assign("/end.html");
   }
   questionCounter++;
+  progressText.innerText = `Question: ${questionCounter}/${MAX_QUESTIONS}`;
+
+  //update the progress bar
+  progressBarFull.style.width = `${(questionCounter / MAX_QUESTIONS) * 100}%`;
   const questionIndex = Math.floor(Math.random() * availableQuestions.length);
   currentQuestion = availableQuestions[questionIndex];
   question.innerText = currentQuestion.question;
@@ -65,14 +72,27 @@ getNewQuestion = () => {
 
 choices.forEach((choice) => {
   choice.addEventListener("click", (e) => {
-    console.log(e.target);
     if (!acceptingAnswer) return;
     acceptingAnswer = false;
     const selectedChoice = e.target;
     const selectedAnswer = selectedChoice.dataset.number;
+    const classToApply =
+      selectedAnswer == currentQuestion.answer ? "correct" : "incorrect";
+    if (classToApply === "correct") {
+      incrementSCore(CORRECT_BONUS);
+    }
+    selectedChoice.parentElement.classList.add(classToApply);
 
-    getNewQuestion();
+    setTimeout(() => {
+      selectedChoice.parentElement.classList.remove(classToApply);
+      getNewQuestion();
+    }, 1000);
   });
 });
+
+incrementSCore = (num) => {
+  score += num;
+  scoreText.innerText = score;
+};
 
 startgame();
